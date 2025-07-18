@@ -1,4 +1,33 @@
-#let primary-color = rgb("#096164")
+#let primary-color = rgb("#f00024")
+
+#let fmt(number, precision: 3,  sci: true) = {
+  if number == 0 {
+    return $0$
+  }
+
+  let multiplier = calc.pow(10.0, precision)
+  if sci==false {
+    let result = calc.floor(number * multiplier) / multiplier
+    return str(result).replace(".", ",")
+  }
+
+  let expoent = calc.floor(calc.ln(calc.abs(number)) / calc.ln(10))
+
+  let coefficient = number / (calc.pow(10.0, expoent))
+
+  let rounded-coefficient = calc.round(coefficient * multiplier) / multiplier
+
+  let coefficient-str = str(rounded-coefficient).replace(".", ",")
+
+  if expoent == 0 {
+    return $#coefficient-str$
+  }
+
+  let expoent-str = str(expoent).replace(".", ",")
+  
+  return $#coefficient-str dot 10^(#expoent-str)$
+}
+
 
 #let mkcover(book-title, book-author, author, primary-color) = [
   #set page(margin:20pt, fill: white)
@@ -63,20 +92,6 @@
     strong(upper(it))
   }
 
-  #show outline.entry.where(
-    level: 2
-  ): it => {
-    v(8pt, weak: true)
-    strong(it)
-  }
-
-  #show outline.entry.where(
-    level: 3
-  ): it => {
-    v(8pt, weak: true)
-    it
-  }
-
   #outline(indent: 0pt, title: upper([Sumário]))
 
   #pagebreak()
@@ -88,8 +103,9 @@
   #set text(weight: "semibold", fill: primary-color, size: 12pt)
   #set par(first-line-indent: 0pt)
   #if level == 1 {
+    set text(size: 16pt)
     upper(text(it))
-    v(-8pt)
+    v(-12pt)
     line(length: 100%, stroke: 1pt + primary-color)
   } else {
     v(8pt)
@@ -97,6 +113,30 @@
   }
   #v(12pt)
 ]
+
+#let solution(body) = {
+  set par(first-line-indent: 0pt)
+  box(
+    stroke: 1pt+primary-color,
+    radius: 3pt,
+    width: 2cm, height: 0.6cm
+  )[
+    #set align(center+ horizon)
+    #text(weight: "medium", fill: primary-color)[Solução]
+  ]
+  
+
+  linebreak()
+  linebreak()
+  
+  body
+
+  align(right)[
+    #h(1fr)
+    #rect(width: 8pt, height: 8pt, fill: primary-color)
+  ]
+}
+
 
 #let template(
   book: (
@@ -178,13 +218,25 @@
     }
   )
 
-  set math.equation(numbering: "(1)", number-align: bottom)
+  //set math.equation(numbering: "(1)", number-align: bottom)
+
 
   // 🧭 Numeração de seções e listas
   set heading(numbering: "1.1.")
   show heading: set text(size: 12pt, fill: primary-color)
   show heading.where(): it => custom-headings(it)
   set list(marker: text(primary-color)[-])
+    set enum(
+    numbering: it => context {
+      let headings = counter(heading).get()
+      let sec = headings.at(0)
+      if headings.len() > 1 {
+        let subsec = headings.at(1)
+        strong(text(primary-color)[#sec.#subsec.#it.])
+      } else {
+        strong(text(primary-color)[#sec.#it.])
+      }
+  })
 
   
   body
