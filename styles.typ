@@ -27,17 +27,75 @@
   ]
 ]
 
+#let mkfrontpage(book-title, book-author, author, primary-color) = [
+  #set page(margin:2cm, fill: white)
+  #set text(size: 12pt, font: "Arial", fill: black)
+  #align(center)[
+    #image("assets/images/logo.svg", width: 2cm)
+    #text(size: 20pt, weight: "bold")[#author]
+  ]
+  #place(
+    bottom+center,
+    float: false
+  )[
+    Resolução Comentada de Exercícios
+    #rect(width: 100%, height: 1pt, fill: primary-color)
+    #grid(
+      columns: (1fr, auto),
+      column-gutter: 15pt,
+      align: (left+bottom, right+horizon),
+      [
+        #cite(<Halliday2>, form: "full")
+      ],
+      [
+        #image("assets/images/capa.png", width: 3cm)
+      ]
+    )
+    #rect(width: 100%, height: 1pt, fill: primary-color)   
+  ]
+]
+
 #let mkcontents() = [
   #show outline.entry.where(
     level: 1
   ): it => {
     v(12pt, weak: true)
+    strong(upper(it))
+  }
+
+  #show outline.entry.where(
+    level: 2
+  ): it => {
+    v(8pt, weak: true)
     strong(it)
   }
 
-  #outline(indent: auto)
+  #show outline.entry.where(
+    level: 3
+  ): it => {
+    v(8pt, weak: true)
+    it
+  }
+
+  #outline(indent: 0pt, title: upper([Sumário]))
 
   #pagebreak()
+]
+
+#let custom-headings(it) = [
+  #let level = it.level
+  #set align(left)
+  #set text(weight: "semibold", fill: primary-color, size: 12pt)
+  #set par(first-line-indent: 0pt)
+  #if level == 1 {
+    upper(text(it))
+    v(-8pt)
+    line(length: 100%, stroke: 1pt + primary-color)
+  } else {
+    v(8pt)
+    text(it)
+  }
+  #v(12pt)
 ]
 
 #let template(
@@ -76,8 +134,11 @@
 
   counter(page).update(1)
 
+  mkfrontpage(book.title, book.author.long, author, primary-color)
+
   mkcontents()
   pagebreak()
+
 
   set page(
     header: context {
@@ -117,7 +178,18 @@
     }
   )
 
-  set heading()
+  set math.equation(numbering: "(1)", number-align: bottom)
+
+  // 🧭 Numeração de seções e listas
+  set heading(numbering: "1.1.")
+  show heading: set text(size: 12pt, fill: primary-color)
+  show heading.where(): it => custom-headings(it)
+  set list(marker: text(primary-color)[-])
+
   
   body
+
+  set heading(numbering: none)
+
+  bibliography("assets/references/references.bib", style: "assets/references/abnt.csl", title: "Referências")
 }

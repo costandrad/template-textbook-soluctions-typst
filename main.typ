@@ -11,24 +11,10 @@
   author: [Igo da Costa Andrade]
 )
 
-= Introdução
 
-#lorem(20)
 
-#lorem(40)
-
-#lorem(30)
-
-#lorem(20)
-
-#pagebreak()
-
-= Capítulo Segundo
-
-#lorem(20)
-
-#lorem(40)
-
-#lorem(30)
-
-#lorem(20)
+#include "chapters/chapther-01.typ"
+#include "chapters/chapther-02.typ"
+#include "chapters/chapther-03.typ"
+#include "chapters/chapther-04.typ"
+#include "chapters/chapther-05.typ"
